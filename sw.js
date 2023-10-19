@@ -1,3 +1,4 @@
+'use strict';
 // Some key things to understand are:
 
 // Service workers are only available over HTTPS or localhost.
@@ -10,23 +11,27 @@ importScripts(
   'https://storage.googleapis.com/workbox-cdn/releases/6.4.1/workbox-sw.js'
 );
 
-// '/css/global.bc7b80b7.css',
-// '/css/home.fe5d0b23.css',
-// '/js/home.d3cc4ba4.js',
-// '/js/jquery.43ca4933.js'
-
-// const CACHE_NAME = 'cool-cache';
-
 const CACHE_NAME = 'static';
+// You can use a pre-fecth strategy in order to ensure all the static assets are downloaded
+// and available in the cache when the service worker is installed:
+// However keep in mind that this kind of strategy is typically used for the app shell files (much less than 300MB).
+// If the service worker cannot download the resources you defined for the "install" phase, it will abort its installation.
 
-// const PRECACHE_ASSETS = ['/assets/', '/src/'];
-const PRECACHE_ASSETS = ['./'];
+// https://developer.mozilla.org/en-US/docs/Web/Progressive_web_apps/Tutorials/js13kGames/Offline_Service_workers
+// appShellFiles
+const PRECACHE_ASSETS = [
+  '/',
+  '/icons/apple-icon-180.png',
+  '/manifest.json',
+  '/secondPage',
+  // '/css/global.bc7b80b7.css',
+  // '/css/home.fe5d0b23.css',
+  // '/js/home.d3cc4ba4.js',
+  // '/js/jquery.43ca4933.js'
+];
 
 self.addEventListener('install', (event) => {
   // installs only once
-  console.log('Install');
-
-  // event.waitUntil(caches.open(CACHE_NAME).then());
   event.waitUntil(
     (async () => {
       const cache = await caches.open(CACHE_NAME);
@@ -35,55 +40,38 @@ self.addEventListener('install', (event) => {
   );
 });
 
-// // cache first
-// self.addEventListener('fetch', (event) => {
-//   event.respondWith(async () => {
-//     const cache = await caches.open(CACHE_NAME);
-
-//     // match the request to our cache
-//     const cachedResponse = await cache.match(event.request);
-
-//     // check if we got a valid response
-//     if (cachedResponse !== undefined) {
-//       // cache hit, return the resource
-//       return cachedResponse;
-//     } else {
-//       // otherwise, go to network
-//       return fetch(event.request);
-//     }
-//   });
-// });
-
-// stale-while-revalidate
-// check the cache first, and the update the cache in the background
+// network first
 self.addEventListener('fetch', (event) => {
-  event.respondWith(async () => {
-    console.log('=========================');
-    const cache = await caches.open(CACHE_NAME);
+  event.respondWith(
+    (async () => {
+      const cache = await caches.open(CACHE_NAME);
+      const cachedResponse = await cache.match(event.request);
 
-    // try the cache first
-    const cachedResponse = await cache.match(event.request);
+      let fetchedResponse;
 
-    if (cachedResponse !== undefined) {
-      // now, we fetch a new response and cache it in the background
-      fetch(event.request).then((response) => {
-        cache.put(event.response, response.clone());
-      });
-      // we don't await the above line, so we return out cachedResponse right away
-      return cachedResponse;
-    } else {
-      // otherwise, go to network
-      return fetch(event.request);
-    }
-  });
+      try {
+        fetchedResponse = await fetch(event.request);
+        cache.put(event.request, fetchedResponse.clone());
+      } catch (error) {
+        console.error(error);
+      }
+
+      return fetchedResponse || cachedResponse;
+    })()
+  );
 });
 
-// console.log('workbox', workbox);
-// console.log('workbox.routing', workbox.routing.registerRoute);
-
-// workbox.routing.registerRoute(
-//   ({ request }) => request.destination === 'image',
-//   new workbox.cacheableResponse.CacheableResponsePlugin()
-// );
-
-// networkFirst()
+// google docs
+// doesn't live offline
+// if (event.request.destination === 'image') {
+//   event.respondWith(
+//     (async () => {
+//       const cache = await caches.open(CACHE_NAME);
+//       console.log('cache', cache, caches);
+//       const cachedResponse = await cache.match(event.request);
+//       const fetchedResponse = await fetch(event.request);
+//       cache.put(event.request, fetchedResponse.clone());
+//       return cachedResponse || fetchedResponse;
+//     })()
+//   );
+// }

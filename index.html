@@ -10,17 +10,17 @@
 </head>
 
 <body>
-  <h1>Hello! 12</h1>
+  <h1>Hello! 3</h1>
+  <div><a href="/secondPage.html">SECOND PAGE</a></div>
+
+  <img src="icons/apple-icon-180.png" />
 
   <script>
-
-
-
-
-
     // Don't register the service worker
     // until the page has fully loaded
     window.addEventListener('load', () => {
+      // registerServiceWorker();
+
       if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('/sw.js').then((registration) => {
           console.log('Service worker registered!', registration);
