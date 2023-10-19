@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#000" />
+  <title>PWA</title>
+  <link rel="manifest" href="manifest.json">
+</head>
+
+<body>
+  <h1>Hello! 12</h1>
+
+  <script>
+
+
+
+
+
+    // Don't register the service worker
+    // until the page has fully loaded
+    window.addEventListener('load', () => {
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/sw.js').then((registration) => {
+          console.log('Service worker registered!', registration);
+        }).catch((error) => {
+          console.warn('Error registering service worker:');
+          console.warn(error);
+        });
+      }
+    });
+  </script>
+</body>
+
+</html>
