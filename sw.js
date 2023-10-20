@@ -42,6 +42,9 @@ self.addEventListener('install', (event) => {
 
 // network first
 self.addEventListener('fetch', (event) => {
+  // handle only get?
+  // show offline page if there's no connection
+  // https://web.dev/articles/offline-fallback-page
   event.respondWith(
     (async () => {
       const cache = await caches.open(CACHE_NAME);
