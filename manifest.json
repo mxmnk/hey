@@ -31,6 +31,6 @@
   ,
   "theme_color": "#000",
   "background_color": "#fff",
-  "display": "browser",
+  "display": "standalone",
   "orientation": "portrait"
 }
