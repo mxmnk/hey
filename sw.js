@@ -29,20 +29,19 @@ const PRECACHE_ASSETS = [
   // '/js/home.d3cc4ba4.js',
   // '/js/jquery.43ca4933.js'
   '/offline',
-  '/offline.html',
 ];
 
 // https://web.dev/articles/offline-fallback-page
 const OFFLINE_VERSION = 1;
-const OFFLINE_URL = 'offline.html';
+const OFFLINE_URL = '/offline';
 
+// installs only once
 self.addEventListener('install', (event) => {
-  // installs only once
+  this.skipWaiting();
+
   event.waitUntil(
     (async () => {
       const cache = await caches.open(CACHE_NAME);
-
-      // await cache.add(new Request(OFFLINE_URL, { cache: 'reload' }));
 
       // caching shell assets
       cache.addAll(PRECACHE_ASSETS);
@@ -50,10 +49,13 @@ self.addEventListener('install', (event) => {
   );
 });
 
+// Navigation preload is a feature that lets you say,
+// "Hey, when the user makes a GET navigation request, start the network request while the service worker is booting up".
+// The startup delay is still there, but it doesn't block the network request, so the user gets content sooner.
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     (async () => {
-      // Enable navigation preload if it's supported.
+      // Enable navigation preload if it's supported
       // See https://developers.google.com/web/updates/2017/02/navigation-preload
       if ('navigationPreload' in self.registration) {
         await self.registration.navigationPreload.enable();
@@ -61,28 +63,32 @@ self.addEventListener('activate', (event) => {
     })()
   );
 
-  // Tell the active service worker to take control of the page immediately.
+  // Tell the active service worker to take control of the page immediately
   self.clients.claim();
 });
 
 // network first
 self.addEventListener('fetch', (event) => {
-  // show offline page if there's no connection
-  // https://web.dev/articles/offline-fallback-page
   console.log('event.request', event.request);
+
   if (event.request.mode === 'navigate') {
-    console.log('---navigate---');
     event.respondWith(
       (async () => {
         try {
-          // First, try to use the navigation preload response if it's
-          // supported.
+          // optional: displays cached pages
+          // const cachedResponse = await caches.match(event.request);
+          // if (cachedResponse) {
+          //   return cachedResponse;
+          // }
+
+          // try to use the navigation preload response if it's supported
+          // https://web.dev/articles/navigation-preload
           const preloadResponse = await event.preloadResponse;
           if (preloadResponse) {
             return preloadResponse;
           }
 
-          // Always try the network first.
+          // always try the network first
           const networkResponse = await fetch(event.request);
           return networkResponse;
         } catch (error) {
@@ -95,7 +101,6 @@ self.addEventListener('fetch', (event) => {
           const cache = await caches.open(CACHE_NAME);
           const cachedResponse = await cache.match(OFFLINE_URL);
 
-          console.log(cachedResponse, OFFLINE_URL);
           return cachedResponse;
         }
       })()
@@ -109,6 +114,11 @@ self.addEventListener('fetch', (event) => {
     // // ignore /api/auth route
     // if (url.pathname.startsWith('/api/auth')) {
     //   return;
+    // }
+
+    // // only images
+    // if (event.request.destination === 'image') {
+    //   event.respondWith(/* your caching logic here */);
     // }
 
     event.respondWith(
@@ -125,22 +135,14 @@ self.addEventListener('fetch', (event) => {
           console.error(error);
         }
 
-        const cachedOfflinePage = await caches.match('/offline.html');
-
-        console.log(
-          'fetched',
-          fetchedResponse,
-          'cachedOfflinePage',
-          cachedOfflinePage
-        );
-        return fetchedResponse || cachedOfflinePage;
+        return fetchedResponse || cachedResponse;
       })()
     );
   }
 });
 
 // google docs
-// doesn't live offline
+// doesn't live offline without shell
 // if (event.request.destination === 'image') {
 //   event.respondWith(
 //     (async () => {
