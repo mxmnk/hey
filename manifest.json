@@ -29,7 +29,7 @@
     }
   ]
   ,
-  "theme_color": "#fff",
+  "theme_color": "rgba(0, 0, 0, .85)",
   "background_color": "#fff",
   "display": "standalone",
   "orientation": "portrait"
