@@ -6,7 +6,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="rgba(0, 0, 0, .85)" />
   <title>PWA</title>
+  <!-- TO EVERY TEMPLATE ? -->
   <link rel="manifest" href="manifest.json">
+  <script src="/script.js" defer></script>
+
 </head>
 
 <body>
@@ -14,23 +17,6 @@
   <div><a href="/secondPage.html">SECOND PAGE</a></div>
 
   <img src="icons/apple-icon-180.png" />
-
-  <script>
-    // Don't register the service worker
-    // until the page has fully loaded
-    window.addEventListener('load', () => {
-      // registerServiceWorker();
-
-      if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('/sw.js').then((registration) => {
-          console.log('Service worker registered!', registration);
-        }).catch((error) => {
-          console.warn('Error registering service worker:');
-          console.warn(error);
-        });
-      }
-    });
-  </script>
 </body>
 
 </html>
