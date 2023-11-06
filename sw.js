@@ -26,11 +26,12 @@ const CACHE_NAME = 'static';
 
 // https://developer.mozilla.org/en-US/docs/Web/Progressive_web_apps/Tutorials/js13kGames/Offline_Service_workers
 // appShellFiles
+// have to be lower case
 const PRECACHE_ASSETS = [
   '/',
   '/icons/apple-icon-180.png',
   '/manifest.json',
-  '/second',
+  '/Second.html',
   // '/css/global.bc7b80b7.css',
   // '/css/home.fe5d0b23.css',
   // '/js/home.d3cc4ba4.js',
