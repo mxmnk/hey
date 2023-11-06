@@ -17,6 +17,10 @@ const CACHE_NAME = 'static';
 // However keep in mind that this kind of strategy is typically used for the app shell files (much less than 300MB).
 // If the service worker cannot download the resources you defined for the "install" phase, it will abort its installation.
 
+// Service Worker have a scope of url where they can work, and this scope can't go up except with Service-Worker-Allowed Header
+// (and not Allow-Service-Work wich refer to nothing), in this header you can specify your desired scope \ here.
+// https://pushpad.xyz/blog/how-to-change-the-scope-of-a-service-worker
+
 // https://developer.mozilla.org/en-US/docs/Web/Progressive_web_apps/Tutorials/js13kGames/Offline_Service_workers
 // appShellFiles
 const PRECACHE_ASSETS = [
@@ -29,6 +33,8 @@ const PRECACHE_ASSETS = [
   // '/js/home.d3cc4ba4.js',
   // '/js/jquery.43ca4933.js'
   '/offline',
+
+  '/pages/contacts',
 ];
 
 // https://web.dev/articles/offline-fallback-page
@@ -75,21 +81,19 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(
       (async () => {
         try {
-          // optional: displays cached pages
-          // const cachedResponse = await caches.match(event.request);
-          // if (cachedResponse) {
-          //   return cachedResponse;
-          // }
-
+          const cache = await caches.open(CACHE_NAME);
           // try to use the navigation preload response if it's supported
           // https://web.dev/articles/navigation-preload
           const preloadResponse = await event.preloadResponse;
+
           if (preloadResponse) {
+            cache.put(event.request, preloadResponse.clone());
             return preloadResponse;
           }
 
           // always try the network first
           const networkResponse = await fetch(event.request);
+          cache.put(event.request, networkResponse.clone());
           return networkResponse;
         } catch (error) {
           // catch is only triggered if an exception is thrown, which is
@@ -99,7 +103,16 @@ self.addEventListener('fetch', (event) => {
           console.log('Fetch failed; returning offline page instead.', error);
 
           const cache = await caches.open(CACHE_NAME);
-          const cachedResponse = await cache.match(OFFLINE_URL);
+
+          // // if we need to fall back instead of cache
+          // const cachedResponse = await cache.match(OFFLINE_URL);
+
+          // if we need to fall back only when we don't have required page in cache
+          let cachedResponse = await cache.match(event.request);
+
+          if (!cachedResponse) {
+            cachedResponse = await cache.match(OFFLINE_URL);
+          }
 
           return cachedResponse;
         }
