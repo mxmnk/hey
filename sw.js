@@ -31,7 +31,7 @@ const PRECACHE_ASSETS = [
   '/',
   '/icons/apple-icon-180.png',
   '/manifest.json',
-  '/Second',
+  '/Second.html',
   // '/css/global.bc7b80b7.css',
   // '/css/home.fe5d0b23.css',
   // '/js/home.d3cc4ba4.js',
