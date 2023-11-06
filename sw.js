@@ -87,12 +87,12 @@ self.addEventListener('fetch', (event) => {
           const cache = await caches.open(CACHE_NAME);
           // try to use the navigation preload response if it's supported
           // https://web.dev/articles/navigation-preload
-          // const preloadResponse = await event.preloadResponse;
+          const preloadResponse = await event.preloadResponse;
 
-          // if (preloadResponse) {
-          //   cache.put(event.request, preloadResponse.clone());
-          //   return preloadResponse;
-          // }
+          if (preloadResponse) {
+            cache.put(event.request, preloadResponse.clone());
+            return preloadResponse;
+          }
 
           // always try the network first
           const networkResponse = await fetch(event.request);
@@ -106,13 +106,11 @@ self.addEventListener('fetch', (event) => {
           console.log('Fetch failed; returning offline page instead.', error);
 
           const cache = await caches.open(CACHE_NAME);
-          console.log('cache', cache);
           // // if we need to fall back instead of cache
           // const cachedResponse = await cache.match(OFFLINE_URL);
 
           // if we need to fall back only when we don't have required page in cache
           let cachedResponse = await cache.match(event.request);
-          console.log('cachedResponse', cachedResponse);
 
           if (!cachedResponse) {
             cachedResponse = await cache.match(OFFLINE_URL);
