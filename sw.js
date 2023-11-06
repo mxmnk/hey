@@ -106,12 +106,13 @@ self.addEventListener('fetch', (event) => {
           console.log('Fetch failed; returning offline page instead.', error);
 
           const cache = await caches.open(CACHE_NAME);
-
+          console.log('cache', cache);
           // // if we need to fall back instead of cache
           // const cachedResponse = await cache.match(OFFLINE_URL);
 
           // if we need to fall back only when we don't have required page in cache
           let cachedResponse = await cache.match(event.request);
+          console.log('cachedResponse', cachedResponse);
 
           if (!cachedResponse) {
             cachedResponse = await cache.match(OFFLINE_URL);
