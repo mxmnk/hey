@@ -21,6 +21,9 @@ const CACHE_NAME = 'static';
 // (and not Allow-Service-Work wich refer to nothing), in this header you can specify your desired scope \ here.
 // https://pushpad.xyz/blog/how-to-change-the-scope-of-a-service-worker
 
+// if we need offline first approach
+// https://gomakethings.com/how-to-set-an-expiration-date-for-items-in-a-service-worker-cache/
+
 // https://developer.mozilla.org/en-US/docs/Web/Progressive_web_apps/Tutorials/js13kGames/Offline_Service_workers
 // appShellFiles
 const PRECACHE_ASSETS = [
@@ -84,12 +87,12 @@ self.addEventListener('fetch', (event) => {
           const cache = await caches.open(CACHE_NAME);
           // try to use the navigation preload response if it's supported
           // https://web.dev/articles/navigation-preload
-          const preloadResponse = await event.preloadResponse;
+          // const preloadResponse = await event.preloadResponse;
 
-          if (preloadResponse) {
-            cache.put(event.request, preloadResponse.clone());
-            return preloadResponse;
-          }
+          // if (preloadResponse) {
+          //   cache.put(event.request, preloadResponse.clone());
+          //   return preloadResponse;
+          // }
 
           // always try the network first
           const networkResponse = await fetch(event.request);
