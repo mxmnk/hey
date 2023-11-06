@@ -87,11 +87,15 @@ self.addEventListener('fetch', (event) => {
           const cache = await caches.open(CACHE_NAME);
           // try to use the navigation preload response if it's supported
           // https://web.dev/articles/navigation-preload
-          const preloadResponse = await event.preloadResponse;
+          try {
+            const preloadResponse = await event.preloadResponse;
 
-          if (preloadResponse) {
-            cache.put(event.request, preloadResponse.clone());
-            return preloadResponse;
+            if (preloadResponse) {
+              cache.put(event.request, preloadResponse.clone());
+              return preloadResponse;
+            }
+          } catch (error) {
+            console.log('Failed to get preloadResponse');
           }
 
           // always try the network first
